@@ -55,7 +55,7 @@ public class ObjectPoolManager : MonoBehaviour
         {
             // Nếu đối tượng trò chơi đã tồn tại, hãy chèn đối tượng mới vào nhóm đối tượng đã tạo trước đó và chấm dứt thực thi.
 #if UNITY_EDITOR
-            Debug.Log(data.key + "는 겹치는 키가 있어요");
+            Debug.Log(data.key + "Có các phím chồng chéo");
 #endif
             for (int i = 0; i < data.count; i++)
             {
@@ -87,7 +87,7 @@ public class ObjectPoolManager : MonoBehaviour
         _keyBySampleObject.Add(data.key, data.prefab);
 
 #if UNITY_EDITOR
-        Debug.Log("오브젝트 이름: " + data.key + "\n 오브젝트 수량: " + parentObject.transform.childCount);
+        Debug.Log("Tên đối tượng: " + data.key + "\n Số lượng đối tượng: " + parentObject.transform.childCount);
 #endif
     }
 
@@ -105,7 +105,7 @@ public class ObjectPoolManager : MonoBehaviour
         {
             // Nếu khóa không tồn tại trong đối tượng nhóm, null sẽ được trả về (lỗi)
 #if UNITY_EDITOR
-            Debug.Log(key + "라는 오브젝트는 없어요!");
+            Debug.Log(key + "Không có đối tượng nào được gọi!");
 #endif
             return null;
         }
@@ -120,7 +120,7 @@ public class ObjectPoolManager : MonoBehaviour
         {
             // Tạo một đối tượng mới nếu không có đối tượng nào trên ngăn xếp
             #if UNITY_EDITOR
-                Debug.Log(key + "의 수가 적어 한 개 추가");
+                Debug.Log(key + "Thêm một vì số lượng ít.");
             #endif
             string parentObjectName = "Pool <" + key + ">";
             var parentObject = GameObject.Find(parentObjectName);

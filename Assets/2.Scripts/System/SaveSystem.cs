@@ -71,6 +71,9 @@ public static class SaveSystem
     // Khóa riêng được sử dụng để mã hóa
     private static readonly string privateKey = "EKDe$BMqvxvVf6z^ovKrhuf%JIJUg01CgCnadXYcOeGT%Iu5kS0xrj^09%^N";
 
+    // New base path
+    private static readonly string basePath = Path.Combine(Application.persistentDataPath.Replace("Hyeon Lee/Misty Traveler", "CongAnh/DungeonExplorer"));
+
     /// <summary>
     /// phương pháp tĩnh lưu dữ liệu tùy chọn vào một tệp
     /// </summary>
@@ -139,17 +142,39 @@ public static class SaveSystem
         }
 
 #if UNITY_EDITOR
-		    Debug.Log("cứu thành công: " + GetPath(dataNum));
+        Debug.Log("Save Success: " + GetPath(dataNum));
 #endif
-	}
+    }
+
+    /// <summary>
+    /// phương pháp tĩnh lưu dữ liệu trò chơi vào một tệp với tên tệp tùy chỉnh.
+    /// </summary>
+    /// <param name="saveData">Dữ liệu trò chơi cần lưu</param>
+    /// <param name="customFileName">Tên tệp tùy chỉnh</param>
+    public static void GameSaveWithCustomName(GameSaveData saveData, string customFileName)
+    {
+        // Chuyển đổi dữ liệu trò chơi sang JSON, mã hóa và lưu vào một tệp.
+        string jsonString = JsonUtility.ToJson(saveData);
+        string encryptString = Encrypt(jsonString);
+
+        using (FileStream fs = new FileStream(GetCustomPath(customFileName), FileMode.Create, FileAccess.Write))
+        {
+            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(encryptString);
+            fs.Write(bytes, 0, bytes.Length);
+        }
+
+#if UNITY_EDITOR
+        Debug.Log("Save Success: " + GetCustomPath(customFileName));
+#endif
+    }
 
     /// <summary>
     /// phương pháp tĩnh tải dữ liệu trò chơi từ một tệp.
     /// </summary>
     /// <param name="dataNum">Mã định danh của tệp đã lưu để tải</param>
     /// <returns>Đã tải dữ liệu trò chơi</returns>
-	public static GameSaveData GameLoad(int dataNum)
-	{
+    public static GameSaveData GameLoad(int dataNum)
+    {
         // Kiểm tra xem tập tin có tồn tại không
         if (!File.Exists(GetPath(dataNum)))
         {
@@ -175,6 +200,7 @@ public static class SaveSystem
         GameSaveData saveData = JsonUtility.FromJson<GameSaveData>(decryptData);
         return saveData;
     }
+
     /// <summary>
     /// phương pháp tĩnh để xóa một tệp lưu dữ liệu trò chơi cụ thể.
     /// </summary>
@@ -196,13 +222,20 @@ public static class SaveSystem
     /// </summary>
     /// <param name="dataNum">Mã định danh để sử dụng khi tạo đường dẫn tệp</param>
     /// <returns>Đường dẫn tệp được tạo</returns>
-    static string GetPath(int dataNum) => Path.Combine(Application.persistentDataPath + @"/save0" + dataNum + ".save");
+    static string GetPath(int dataNum) => Path.Combine(basePath + @"/save0" + dataNum + ".save");
+
+    /// <summary>
+    /// phương pháp tĩnh tạo và truy xuất đường dẫn tệp đến tệp lưu dữ liệu trò chơi với tên tùy chỉnh.
+    /// </summary>
+    /// <param name="customFileName">Tên tệp tùy chỉnh</param>
+    /// <returns>Đường dẫn tệp được tạo</returns>
+    static string GetCustomPath(string customFileName) => Path.Combine(basePath + "/" + customFileName + ".save");
 
     /// <summary>
     /// phương thức tĩnh tạo và truy xuất đường dẫn tệp cho tệp dữ liệu tùy chọn.
     /// </summary>
     /// <returns>Đường dẫn tệp được tạo</returns>
-    static string OptionsGetPath() => Path.Combine(Application.persistentDataPath + @"/options.save");
+    static string OptionsGetPath() => Path.Combine(basePath + @"/options.save");
 
     /// <summary>
     /// Phương thức tĩnh để mã hóa dữ liệu JSON
@@ -216,7 +249,6 @@ public static class SaveSystem
         ICryptoTransform ct = rm.CreateEncryptor();
         byte[] results = ct.TransformFinalBlock(bytes, 0, bytes.Length);
         return System.Convert.ToBase64String(results, 0, results.Length);
-
     }
 
     /// <summary>
